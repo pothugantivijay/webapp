@@ -40,6 +40,13 @@ public class User {
     @Column(nullable = false)
     private Instant account_updated;
 
+    public User(String newUser, String password, String first, String last) {
+        this.username=newUser;
+        this.password=password;
+        this.first_name=first;
+        this.last_name=last;
+    }
+
     public String getID() {
         return ID;
     }
