@@ -6,7 +6,7 @@ packer {
     }
   }
 }
-
+//projectId
 variable "project_id" {
   description = "The ID of the Google Cloud Platform project"
   default     = "devproject-414915"
