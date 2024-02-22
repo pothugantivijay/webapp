@@ -72,6 +72,6 @@ build {
   }
 
   provisioner "shell" {
-    script = "C:/Users/vijay/OneDrive/Desktop/cloudassignment3/webapp/Packer/mariadb_setup.sh"
+    script = "mariadb_setup.sh"
   }
 }
