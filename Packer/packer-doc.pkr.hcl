@@ -16,12 +16,12 @@ variable "credentials" {
 }
 
 variable "tmp_service_file" {
-  type = string
+  type    = string
   default = ""
 }
 
 variable "source_file" {
-  type = string
+  type    = string
   default = ""
 }
 
@@ -46,11 +46,11 @@ variable "network" {
 }
 
 source "googlecompute" "custom_image" {
-  project_id  = var.project_id
-  source_image = var.source_image
-  zone        = var.zone
-  machine_type = var.machine_type
-  network     = var.network
+  project_id       = var.project_id
+  source_image     = var.source_image
+  zone             = var.zone
+  machine_type     = var.machine_type
+  network          = var.network
   credentials_file = var.credentials
 
   ssh_username = "packer"
