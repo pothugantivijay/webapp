@@ -9,10 +9,12 @@ packer {
 
 variable "project_id" {
   description = "The ID of the Google Cloud Platform project"
+  default     = "devproject-414915"
 }
 
 variable "credentials" {
   description = "Path to the Google Cloud service account key file"
+  default     = ""
 }
 
 variable "tmp_service_file" {
