@@ -16,7 +16,7 @@ jobs:
 
       - name: Packer init
         run: | 
-          packer init .  
+          packer init ../../packer
 
       - name: Packer Format Check
         run: |
