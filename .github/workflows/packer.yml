@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Packer init
-        run: | 
+        run:
           cd packer
           packer init .
         #working-directory: ./packer
