@@ -15,8 +15,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Packer init
-        run: |
-          cd packer 
+        run: | 
           packer init .  
 
       - name: Packer Format Check
