@@ -69,9 +69,7 @@ build {
     destination = "/tmp/assignment-0.0.1-SNAPSHOT.jar"
   }
 
-
   provisioner "shell" {
     script = "C:/Users/vijay/OneDrive/Desktop/cloudassignment3/webapp/Packer/mariadb_setup.sh"
   }
-
 }
