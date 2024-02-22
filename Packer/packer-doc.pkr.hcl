@@ -12,11 +12,6 @@ variable "project_id" {
   default     = "devproject-414915"
 }
 
-variable "credentials" {
-  description = "Path to the Google Cloud service account key file"
-  default     = ""
-}
-
 variable "tmp_service_file" {
   type    = string
   default = ""
@@ -29,12 +24,7 @@ variable "source_file" {
 
 variable "source_image" {
   description = "The source image to use for the custom image"
-  default     = "centos-cloud/centos-8"
-}
-
-variable "machine_type" {
-  description = "The machine type for the instance"
-  default     = "n1-standard-1"
+  default     = "centos-stream-8-v20240110"
 }
 
 variable "zone" {
@@ -42,19 +32,10 @@ variable "zone" {
   default     = "us-central1-a"
 }
 
-variable "network" {
-  description = "The network to use for the instance"
-  default     = "default"
-}
-
 source "googlecompute" "custom_image" {
-  project_id       = var.project_id
-  source_image     = var.source_image
-  zone             = var.zone
-  machine_type     = var.machine_type
-  network          = var.network
-  credentials_file = var.credentials
-
+  project_id   = var.project_id
+  source_image = var.source_image
+  zone         = var.zone
   ssh_username = "packer"
 }
 
