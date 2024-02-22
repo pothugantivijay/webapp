@@ -16,9 +16,8 @@ jobs:
 
       - name: Packer init
         run:
-          cd packer
           packer init .
-        #working-directory: ./packer
+        working-directory: ./Packer
 
       - name: Packer Format Check
         run: |
@@ -29,10 +28,11 @@ jobs:
                exit 1
              fi
            done
-
+        working-directory: ./Packer
 
       - name: Packer Validate
         run: |
           for template in $(find . -name '*.hcl'); do
             packer validate "$template"
           done
+        working-directory: ./Packer
