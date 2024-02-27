@@ -33,7 +33,7 @@ variable "zone" {
 }
 
 source "googlecompute" "custom_image" {
-  project_id   = var.project_id1
+  project_id   = var.project_id
   source_image = var.source_image
   zone         = var.zone
   ssh_username = "packer"
