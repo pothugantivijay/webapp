@@ -6,7 +6,7 @@ This Spring Boot application serves as an Web Application , providing functional
 Additionally, it is integrated with a CI, with the CI process including checks to ensure that integration tests are successfully executed, guaranteeing robustness and reliability of the deployments. 
 
 
-## CI/CD Pipeline
+## CI/CD Pipeline 1
 
 ### Continuous Integration (CI)
 
