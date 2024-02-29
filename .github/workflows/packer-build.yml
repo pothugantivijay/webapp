@@ -58,6 +58,5 @@ jobs:
 
       - name: Build Packer Image
         run: |
-          packer build -var 'source_file=./target/assignment-0.0.1-SNAPSHOT.jar' -var 'tmp_service_file=../packer/systemd-service.service' ..packer/packer-doc.pkr.hcl
-
+          packer build -var 'source_file=../target/assignment-0.0.1-SNAPSHOT.jar' -var 'tmp_service_file=./packer/systemd-service.service' ../packer/packer-doc.pkr.hcl
         working-directory: ./Packer
