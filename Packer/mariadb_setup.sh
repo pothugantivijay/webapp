@@ -19,5 +19,4 @@ sudo ls /home/csye6225
 sudo chown -R csye6225:csye6225 /home/csye6225
 
 sudo systemctl daemon-reload
-sudo systemctl enable mariadb
 sudo systemctl enable systemd-service.service
