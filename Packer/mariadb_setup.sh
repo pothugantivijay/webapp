@@ -1,12 +1,6 @@
 # Create the directory (if it does not exist)
 sudo cp /tmp/systemd-service.service /etc/systemd/system/systemd-service.service
-sudo dnf install mariadb-server -y
-#this will install mariadb in the server
-sudo systemctl start mariadb
-#this will start the mariadb server
-#sudo mysql -u root
 #this will allow us to log in for the first time
-sudo mysql -u root -e "ALTER USER 'root'@'localhost' IDENTIFIED BY 'Vijayueki@23';"
 sudo yum update
 sudo yum install java-17-openjdk-devel -y
 #This will set the user details for the mysql
