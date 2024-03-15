@@ -1,4 +1,4 @@
-# Webapp
+# Webapplication
 
 
 This Spring Boot application serves as an Web Application , providing functionality for users to add, modify user details. It supports the submission of their details. The system also features user authentication, implemented through basic HTTP authentication using username and password, ensuring secure and controlled access. 
