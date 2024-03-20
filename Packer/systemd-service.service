@@ -5,10 +5,10 @@ Wants=cloud-init.service
 
 [Service]
 Environment="PATH=/usr/local/bin:/usr/bin:/bin"
-ExecStart=/usr/bin/java -jar /home/csye6225/assignment-0.0.1-SNAPSHOT.jar --spring.config.name=application --spring.config.location=file:/tmp/
+ExecStart=/usr/bin/java -jar /opt/my-app/assignment-0.0.1-SNAPSHOT.jar --spring.config.name=application --spring.config.location=file:/tmp/
 Restart=always
 User=csye6225
-WorkingDirectory=/home/csye6225
+WorkingDirectory=/opt/my-app
 
 [Install]
 WantedBy=multi-user.target
