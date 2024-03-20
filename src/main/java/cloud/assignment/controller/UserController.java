@@ -51,10 +51,11 @@ public class UserController{
             userResponse.put("last_name", savedUser.getLast_name());
             userResponse.put("account_created", savedUser.getAccount_created());
             userResponse.put("account_updated", savedUser.getAccount_updated());
-
+            System.out.println("THE EMAIL ADDRESS HAS BEEN CREATED");
             return ResponseEntity.status(HttpStatus.CREATED).cacheControl(CacheControl.noCache()).body(userResponse);
         } catch(Exception e){
             // It's a good idea to log the exception
+            System.out.println("INVALID USER DETAILS");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).cacheControl(CacheControl.noCache()).body(null);
         }
     }
@@ -83,12 +84,15 @@ public class UserController{
                 userResponse.put("lastname", ua.getLast_name());
                 userResponse.put("account_created", ua.getAccount_created());
                 userResponse.put("account_updated", ua.getAccount_updated());
+                System.out.println("USER DETAILS FOUND");
 
                 return ResponseEntity.status(HttpStatus.OK).cacheControl(CacheControl.noCache()).body(userResponse);
             } catch (Exception e) {
+                System.out.println("USER DETAILS NOT FOUND");
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).cacheControl(CacheControl.noCache()).build();
             }
         } else {
+            System.out.println("USER DETAILS NOT FOUND");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).cacheControl(CacheControl.noCache()).build();
         }
     }
@@ -138,6 +142,7 @@ public class UserController{
         }
         catch(Exception e){
             if (!isUpdated) {
+                System.out.println("CANNOT UPDATE USER DETAILS");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).cacheControl(CacheControl.noCache()).body(null);
             }
         }
