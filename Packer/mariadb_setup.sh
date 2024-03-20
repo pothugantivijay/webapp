@@ -14,6 +14,8 @@ sudo useradd -s /usr/sbin/nologin -g csye6225 csye6225
 sudo mv /tmp/assignment-0.0.1-SNAPSHOT.jar /home/csye6225
 sudo ls /home/csye6225
 
+curl -sSO https://dl.google.com/cloudagents/add-google-cloud-ops-agent-repo.sh
+sudo bash add-google-cloud-ops-agent-repo.sh --also-install
 
 # Change the ownership of the directory
 sudo chown -R csye6225:csye6225 /home/csye6225
