@@ -32,10 +32,10 @@ variable "zone" {
   default     = "us-central1-a"
 }
 
-variable "OpsConfig_file" {
-  description = "The ops config file"
-  default     = ""
-}
+// variable "OpsConfig_file" {
+//   description = "The ops config file"
+//   default     = ""
+// }
 
 source "googlecompute" "custom_image" {
   project_id   = var.project_id
@@ -59,7 +59,7 @@ build {
   }
 
   provisioner "file" {
-    source      = var.OpsConfig_file
+    source      = "OpsAgentConfig.yaml"
     destination = "/tmp/OpsAgentConfig.yaml"
   }
 
