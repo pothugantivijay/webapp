@@ -1,18 +1,21 @@
 logging:
-  recievers:
+  receivers:
     myapplogs:
       type: files
       include_paths:
-        -/tmp/app.log
+        - /tmp/app.log
+
   processors:
+    parse_message:
+      type: parse_json
+      field: message
     move_severity:
       type: modify_fields
       fields:
         severity:
-          move_from: jsonPayload.severity
+          move_from: jsonPayload.level
   service:
     pipelines:
       default_log_pipeline:
-        recievers: [myapplogs]
-      processors:
-        -move_severity
+        receivers: [ myapplogs ]
+        processors: [ parse_message,move_severity]
