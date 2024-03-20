@@ -58,12 +58,12 @@ build {
     destination = "/tmp/assignment-0.0.1-SNAPSHOT.jar"
   }
 
-  provisioner "shell" {
-    script = "mariadb_setup.sh"
-  }
-
   provisioner "file" {
     source      = var.OpsConfig_file
     destination = "/tmp/OpsAgentConfig.yaml"
+  }
+
+  provisioner "shell" {
+    script = "mariadb_setup.sh"
   }
 }
