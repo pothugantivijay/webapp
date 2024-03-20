@@ -32,6 +32,11 @@ variable "zone" {
   default     = "us-central1-a"
 }
 
+variable "OpsConfig_file" {
+  description = "The ops config file"
+  default     = ""
+}
+
 source "googlecompute" "custom_image" {
   project_id   = var.project_id
   source_image = var.source_image
@@ -47,6 +52,7 @@ build {
     destination = "/tmp/systemd-service.service"
   }
 
+
   provisioner "file" {
     source      = var.source_file
     destination = "/tmp/assignment-0.0.1-SNAPSHOT.jar"
@@ -54,5 +60,10 @@ build {
 
   provisioner "shell" {
     script = "mariadb_setup.sh"
+  }
+
+  provisioner "file" {
+    source      = var.OpsConfig_file
+    destination = "/tmp/OpsAgentConfig.yaml"
   }
 }

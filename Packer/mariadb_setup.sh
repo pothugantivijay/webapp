@@ -17,6 +17,7 @@ sudo ls /home/csye6225
 curl -sSO https://dl.google.com/cloudagents/add-google-cloud-ops-agent-repo.sh
 sudo bash add-google-cloud-ops-agent-repo.sh --also-install
 
+# Copying the config file to the google cloud ops agent
 sudo mv /tmp/OpsAgentConfig.yaml /etc/google-cloud-ops-agent/config.yaml
 
 # Change the ownership of the directory
