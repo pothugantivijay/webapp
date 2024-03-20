@@ -1,0 +1,10 @@
+logging:
+  recievers:
+    myapplogs:
+      type: files
+      include_paths:
+        -/tmp/app.log
+  service:
+    pipelines:
+      default_log_pipeline:
+        recievers: [myapplogs]
