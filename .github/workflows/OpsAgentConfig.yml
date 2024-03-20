@@ -4,7 +4,15 @@ logging:
       type: files
       include_paths:
         -/tmp/app.log
+  processors:
+    move_severity:
+      type: modify_fields
+      fields:
+        severity:
+          move_from: jsonPayload.severity
   service:
     pipelines:
       default_log_pipeline:
         recievers: [myapplogs]
+      processors:
+        -move_severity
