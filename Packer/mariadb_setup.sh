@@ -24,3 +24,4 @@ sudo chown -R csye6225:csye6225 /home/csye6225
 
 sudo systemctl daemon-reload
 sudo systemctl enable systemd-service.service
+sudo systemctl restart google-cloud-ops-agent"*"
