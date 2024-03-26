@@ -40,6 +40,11 @@ jobs:
           cd target 
           ls 
 
+      - id: 'auth'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.GOOGLE_SECRETS_KEY }}'
+
       - name: Run Integration Tests
         env:
           SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/db1?createDatabaseIfNotExist=true
@@ -51,10 +56,6 @@ jobs:
         run: packer init .
         working-directory: ./Packer
 
-      - id: 'auth'
-        uses: 'google-github-actions/auth@v2'
-        with:
-          credentials_json: '${{ secrets.GOOGLE_SECRETS_KEY }}'
 
       - name: Build Packer Image
         run: |

@@ -16,7 +16,15 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.Instant;
+import com.google.api.gax.core.FixedCredentialsProvider;
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.pubsub.v1.Publisher;
+import com.google.gson.Gson;
+import com.google.protobuf.ByteString;
+import com.google.pubsub.v1.ProjectTopicName;
+import com.google.pubsub.v1.PubsubMessage;
+
+import java.io.FileInputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -48,6 +56,7 @@ public class UserController{
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).cacheControl(CacheControl.noCache()).body(null);
             }
             user.setPassword(passwordEncoder.encode(user.getPassword()));
+            pubsubMessage(user);
             User savedUser = Userservice.createuser(user);
 
             // Excluding the password
@@ -58,6 +67,8 @@ public class UserController{
             userResponse.put("last_name", savedUser.getLast_name());
             userResponse.put("account_created", savedUser.getAccount_created());
             userResponse.put("account_updated", savedUser.getAccount_updated());
+            //pubsubMessage(savedUser);
+
             System.out.println("THE EMAIL ADDRESS HAS BEEN CREATED");
             return ResponseEntity.status(HttpStatus.CREATED).cacheControl(CacheControl.noCache()).body(userResponse);
         } catch(Exception e){
@@ -144,7 +155,7 @@ public class UserController{
             user.setPassword(password);
             isUpdated = true;
         }
-        user.setAccount_updated(Instant.now());
+        user.setAccount_updated(user.getAccount_updated());
         userRepository.save(user);
         }
         catch(Exception e){
@@ -154,6 +165,29 @@ public class UserController{
             }
         }
         return ResponseEntity.noContent().cacheControl(CacheControl.noCache()).build();
+    }
+    private void pubsubMessage(User user) {
+        String projectId = "devproject-414915";
+        String topicId = "verify_email";
+        Gson gson = new Gson();
+        String jsonData = gson.toJson(user);
+
+        ProjectTopicName topicName = ProjectTopicName.of(projectId, topicId);
+        Publisher publisher = null;
+
+        try {
+            publisher = Publisher.newBuilder(topicName).build();
+            ByteString data = ByteString.copyFromUtf8(jsonData);
+            PubsubMessage pubsubMessage = PubsubMessage.newBuilder().setData(data).build();
+            publisher.publish(pubsubMessage).get();
+            System.out.println(data);
+        } catch (Exception e) {
+            System.out.println(e);
+        } finally {
+            if (publisher != null) {
+                publisher.shutdown();
+            }
+        }
     }
 }
 

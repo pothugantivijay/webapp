@@ -4,9 +4,13 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 //import com.fasterxml.jackson.annotation.JsonIgnore;
 //import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.Date;
+
 import jakarta.persistence.*;
 //import jakarta.persistence.GeneratedValue;
 import jakarta.validation.constraints.Pattern;
+
+import org.hibernate.annotations.CreationTimestamp;
 //import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.UuidGenerator;
 
@@ -36,10 +40,12 @@ public class User {
     @Column(nullable = false)
     private String password;
     @Column(nullable = false)
-    private Instant account_created;
+    @CreationTimestamp
+    private Date account_created;
     @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = false)
-    private Instant account_updated;
+    @CreationTimestamp
+    private Date account_updated;
 
     public User(String newUser, String password, String first, String last) {
         this.username=newUser;
@@ -88,26 +94,26 @@ public class User {
         this.password = password;
     }
 
-    public Instant getAccount_created() {
+    public Date getAccount_created() {
         return account_created;
     }
 
-    public void setAccount_created(Instant account_created) {
+    public void setAccount_created(Date account_created) {
         this.account_created = account_created;
     }
 
-    public Instant getAccount_updated() {
+    public Date getAccount_updated() {
         return account_updated;
     }
 
-    public void setAccount_updated(Instant account_updated) {
+    public void setAccount_updated(Date account_updated) {
         this.account_updated = account_updated;
     }
 
     public User() {
     }
 
-    public User(String ID, String first_name, String last_name, String username, String password, Instant account_created, Instant account_updated) {
+    public User(String ID, String first_name, String last_name, String username, String password, Date account_created, Date account_updated) {
         this.ID = ID;
         this.first_name = first_name;
         this.last_name = last_name;
