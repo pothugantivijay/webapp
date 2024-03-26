@@ -4,6 +4,8 @@ import cloud.assignment.model.User;
 import cloud.assignment.repository.UserRepository;
 import cloud.assignment.service.connection;
 import cloud.assignment.service.userservice;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
@@ -31,9 +33,14 @@ public class UserController{
     UserRepository userRepository;
     @Autowired
     connection Connection;
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
     @PostMapping
     public ResponseEntity<?> createuser(@RequestBody User user){
         try {
+            logger.info("info hit");
+            logger.debug("debug hit");
+            logger.warn("warn hit");
+            logger.error("error hit");
             if(!Connection.isconnectionok()){
                 return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).cacheControl(CacheControl.noCache()).build();
             }

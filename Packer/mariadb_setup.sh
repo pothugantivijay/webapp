@@ -1,7 +1,6 @@
 # Create the directory (if it does not exist)
 sudo cp /tmp/systemd-service.service /etc/systemd/system/systemd-service.service
 #this will allow us to log in for the first time
-sudo yum update
 sudo yum install java-17-openjdk-devel -y
 #This will set the user details for the mysql
 #sudo mysql -u root -p
@@ -11,7 +10,7 @@ sudo yum install java-17-openjdk-devel -y
 sudo groupadd csye6225
 # Create a new user with the group, no login shell, and create a home directory
 sudo useradd -s /usr/sbin/nologin -g csye6225 csye6225
-sudo mv /tmp/assignment-0.0.1-SNAPSHOT.jar /home/csye6225
+sudo cp /tmp/assignment-0.0.1-SNAPSHOT.jar /home/csye6225
 sudo ls /home/csye6225
 
 curl -sSO https://dl.google.com/cloudagents/add-google-cloud-ops-agent-repo.sh

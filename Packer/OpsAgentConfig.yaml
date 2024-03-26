@@ -3,7 +3,7 @@ logging:
     myapplogs:
       type: files
       include_paths:
-        - /home/cyse6225/app.log
+        - /home/csye6225/app.log
 
   processors:
     parse_message:
