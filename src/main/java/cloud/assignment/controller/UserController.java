@@ -1,6 +1,8 @@
 package cloud.assignment.controller;
 
+import cloud.assignment.model.TokenEntity;
 import cloud.assignment.model.User;
+import cloud.assignment.repository.TokenRepository;
 import cloud.assignment.repository.UserRepository;
 import cloud.assignment.service.connection;
 import cloud.assignment.service.userservice;
@@ -41,6 +43,8 @@ public class UserController{
     UserRepository userRepository;
     @Autowired
     connection Connection;
+    @Autowired
+    private TokenRepository tokenRepository;
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
     @PostMapping
     public ResponseEntity<?> createuser(@RequestBody User user){
@@ -93,6 +97,17 @@ public class UserController{
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
             Optional<User> userOptional = userRepository.findByUsername(userDetails.getUsername());
 
+            if(userOptional==null){
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).cacheControl(CacheControl.noCache()).body(null);
+            }
+            Optional<TokenEntity> token = tokenRepository.findById(userDetails.getUsername());
+            if(token.isEmpty()){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).cacheControl(CacheControl.noCache()).body(null);
+            }
+            if(!token.get().isVerified()){
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).cacheControl(CacheControl.noCache()).body(null);
+            }
+
             try {
                 User ua = userOptional.get();
                 Map<String, Object> userResponse = new HashMap<>();
@@ -115,6 +130,7 @@ public class UserController{
         }
     }
     //put mapping is given here
+    @SuppressWarnings("unused")
     @PutMapping("/self")
         public ResponseEntity<?> updateuser(@RequestBody User updateInfo) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -133,6 +149,17 @@ public class UserController{
         Optional<User> userOptional = userRepository.findByUsername(userDetails.getUsername());
         if (userOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).cacheControl(CacheControl.noCache()).build();
+        }
+        if(userOptional==null){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).cacheControl(CacheControl.noCache()).body(null);
+        }
+        Optional<TokenEntity> token = tokenRepository.findById(userDetails.getUsername());
+        if(token.isEmpty()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).cacheControl(CacheControl.noCache()).body(null);
+        }
+
+        if(!token.get().isVerified()){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).cacheControl(CacheControl.noCache()).body("User not verified!");
         }
 
         User user = userOptional.get();
