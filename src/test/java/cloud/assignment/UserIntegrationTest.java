@@ -3,29 +3,20 @@ package cloud.assignment;
 import cloud.assignment.model.TokenEntity;
 import cloud.assignment.model.User;
 import cloud.assignment.repository.TokenRepository;
-
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.nio.charset.StandardCharsets;
+import java.sql.Timestamp;
+import java.util.Base64;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpStatus;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Date;
-import java.util.UUID;
-
-
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class UserIntegrationTest {
 
@@ -35,84 +26,83 @@ public class UserIntegrationTest {
     @Autowired
     private TestRestTemplate restTemplate;
 
-    private HttpHeaders createHeaders(String username, String password) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBasicAuth(username, password);
-        return headers;
-    }
+    @Autowired
+    private TokenRepository tokenRepository;
 
-    private String baseUrl() {
-        return "http://localhost:" + port + "/v1/user";
+    private String baseUrl;
+
+    @BeforeEach
+    public void setup() {
+        this.baseUrl = "http://localhost:" + port;
     }
 
     @Test
     @Order(1)
-    public void testCreateAndGetUser() {
-        // Create user
-        User newUser = new User("testUser@gmail.com", "testPass", "Test", "User");
-        HttpEntity<User> entity = new HttpEntity<>(newUser, null);
-        ResponseEntity<Object> createResponse = restTemplate.exchange(baseUrl(), HttpMethod.POST, entity, Object.class);
-        assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
+    public void healthCheckTest() {
+        // Test 123
+        ResponseEntity<String> response = restTemplate.getForEntity(baseUrl + "/healthz", String.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-        // Validate user exists
-        HttpEntity<User> getEntity = new HttpEntity<>(null, createHeaders(newUser.getUsername(), newUser.getPassword()));
-        ResponseEntity<User> getResponse = restTemplate.exchange(baseUrl() + "/self", HttpMethod.GET, getEntity, User.class);
-        assertEquals(HttpStatus.OK, getResponse.getStatusCode());
-        assertEquals("testUser@gmail.com", getResponse.getBody().getUsername());
+    }
+
+    private ResponseEntity<User> authUser(User body, HttpMethod method) {
+        HttpHeaders headers = new HttpHeaders(){{
+            String auth = "user@example.com" + ":" + "pass";
+            byte[] encodedAuth = Base64.getEncoder().encode(auth.getBytes(StandardCharsets.UTF_8));
+            String authHeader = "Basic " + new String(encodedAuth);
+            set("Authorization", authHeader);
+        }};
+        HttpEntity<User> request = new HttpEntity<>(body, headers);
+        ResponseEntity<User> response = restTemplate.exchange(baseUrl+"/v1/user/self", method, request, User.class);
+        return response;
+    }
+
+    TokenEntity tokenValue(String username){
+        TokenEntity token =  new TokenEntity();
+        token.setVerified(true);
+        token.setExptime(new Timestamp(System.currentTimeMillis() + 2 * 60 * 1000));
+        token.setEmail(username);
+        token.setLink("abcdef");
+
+        return token;
     }
 
     @Test
     @Order(2)
-    public void testUpdateAndGetUser() {
+    public void createUserTest() {
+        User newUser = new User();
+        newUser.setFirst_name("first");
+        newUser.setLast_name("last");
+        newUser.setPassword("pass");
+        newUser.setUsername("user@example.com");
+        ResponseEntity<User> response = restTemplate.postForEntity(baseUrl + "/v1/user", newUser, User.class);
+        TokenEntity token =tokenValue(newUser.getUsername());
+        tokenRepository.save(token);
+        ResponseEntity<TokenEntity> tokenResponse = restTemplate.getForEntity(baseUrl+"/verify?token=abcdef", null);
 
-        // Update user
-        User updatedUser = new User("testUser@gmail.com", "testPass", "NewTest", "User");
-        HttpEntity<User> updateEntity = new HttpEntity<>(updatedUser, createHeaders(updatedUser.getUsername(), updatedUser.getPassword()));
-        ResponseEntity<User> updateResponse = restTemplate.exchange(baseUrl() + "/self", HttpMethod.PUT, updateEntity, User.class);
-        assertEquals(HttpStatus.NO_CONTENT, updateResponse.getStatusCode());
-
-        // Validate user was updated
-        HttpEntity<User> getEntity = new HttpEntity<>(null, createHeaders(updatedUser.getUsername(), updatedUser.getPassword()));
-        ResponseEntity<User> getResponse = restTemplate.exchange(baseUrl() + "/self", HttpMethod.GET, getEntity, User.class);
-        assertEquals(HttpStatus.OK, getResponse.getStatusCode());
-        assertEquals("testUser@gmail.com", getResponse.getBody().getUsername());
+        ResponseEntity<User> getresponse = authUser(null, HttpMethod.GET);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(getresponse.getBody().getUsername()).isEqualTo(newUser.getUsername());
     }
 
+    @Test
+    @Order(3)
+    public void updateUserTest() {
 
-    public class VerificationControllerTest {
+        ResponseEntity<User> get_user = authUser(null, HttpMethod.GET);
+        User newUser = new User();
+        newUser.setFirst_name("first_update");
+        get_user.getBody().setFirst_name("first_update");
+        newUser.setLast_name("last_update");
+        get_user.getBody().setLast_name("last_update");
+        newUser.setPassword("pass");
+        get_user.getBody().setPassword("pass");
 
-        @Autowired
-        private TestRestTemplate restTemplate;
+        ResponseEntity<User> response = authUser(newUser, HttpMethod.PUT);
 
-        @Autowired
-        private TokenRepository tokenRepository;
-
-        @Test
-        @Order(3)
-        public void testVerifyToken() {
-            // Create a new token entity
-            TokenEntity tokenEntity = new TokenEntity();
-            String token = UUID.randomUUID().toString();
-            tokenEntity.setToken(token);
-            tokenEntity.setEmail("test@example.com");
-            tokenEntity.setExpiration(new Date(System.currentTimeMillis() + 120000)); // 2 minutes from now
-            tokenEntity.setVerified(true);
-            tokenRepository.save(tokenEntity);
-
-            // Call the verification endpoint
-            ResponseEntity<String> response = restTemplate.getForEntity("/verify?token=" + token, String.class);
-
-            // Check response status and content
-            assertEquals(HttpStatus.OK, response.getStatusCode());
-            assertTrue(response.getBody().contains("Verified successfully"));
-
-            // Check if the token status is updated in the database
-            TokenEntity updatedToken = tokenRepository.findById(token).orElse(null);
-            assertNotNull(updatedToken);
-            assertTrue(updatedToken.isVerified());
-        }
-
-        // Other tests...
-
+        ResponseEntity<User> get_response = authUser(null, HttpMethod.GET);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(get_response.getBody().getUsername()).isEqualTo(get_user.getBody().getUsername());
 }
 }
