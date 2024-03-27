@@ -1,40 +1,48 @@
 package cloud.assignment.model;
 
-import java.util.Date;
-
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import org.hibernate.annotations.GenericGenerator;
+
+import java.sql.Timestamp;
 
 @Entity
 public class TokenEntity {
+
     @Id
-    private String token;
+    @Column(name = "email", nullable = false )
     private String email;
-    private Date expiration;
+    @Column(name = "link", nullable = false )
+    private String link;
+    @Column(name = "exptime", nullable = false )
+    private Timestamp exptime;
+    @Column(name = "verified", nullable = false )
     private boolean verified;
 
-    public java.lang.String getEmail() {
+    public String getEmail() {
         return email;
     }
 
-    public void setEmail(java.lang.String email) {
+    public void setEmail(String email) {
         this.email = email;
     }
 
-    public java.lang.String getToken() {
-        return token;
+    public String getLink() {
+        return link;
     }
 
-    public void setToken(java.lang.String token) {
-        this.token = token;
+    public void setLink(String link) {
+        this.link = link;
     }
 
-    public Date getExpiration() {
-        return expiration;
+    public Timestamp getExptime() {
+        return exptime;
     }
 
-    public void setExpiration(Date expiration) {
-        this.expiration = expiration;
+    public void setExptime(Timestamp exptime) {
+        this.exptime = exptime;
     }
 
     public boolean isVerified() {
@@ -45,4 +53,3 @@ public class TokenEntity {
         this.verified = verified;
     }
 }
-
