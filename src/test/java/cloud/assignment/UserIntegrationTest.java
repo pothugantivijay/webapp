@@ -1,6 +1,9 @@
 package cloud.assignment;
 
+import cloud.assignment.model.TokenEntity;
 import cloud.assignment.model.User;
+import cloud.assignment.repository.TokenRepository;
+
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -12,6 +15,15 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+
+import java.util.Date;
+import java.util.UUID;
+
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -66,4 +78,41 @@ public class UserIntegrationTest {
         assertEquals("testUser@gmail.com", getResponse.getBody().getUsername());
     }
 
+
+    public class VerificationControllerTest {
+
+        @Autowired
+        private TestRestTemplate restTemplate;
+
+        @Autowired
+        private TokenRepository tokenRepository;
+
+        @Test
+        @Order(3)
+        public void testVerifyToken() {
+            // Create a new token entity
+            TokenEntity tokenEntity = new TokenEntity();
+            String token = UUID.randomUUID().toString();
+            tokenEntity.setToken(token);
+            tokenEntity.setEmail("test@example.com");
+            tokenEntity.setExpiration(new Date(System.currentTimeMillis() + 120000)); // 2 minutes from now
+            tokenEntity.setVerified(true);
+            tokenRepository.save(tokenEntity);
+
+            // Call the verification endpoint
+            ResponseEntity<String> response = restTemplate.getForEntity("/verify?token=" + token, String.class);
+
+            // Check response status and content
+            assertEquals(HttpStatus.OK, response.getStatusCode());
+            assertTrue(response.getBody().contains("Verified successfully"));
+
+            // Check if the token status is updated in the database
+            TokenEntity updatedToken = tokenRepository.findById(token).orElse(null);
+            assertNotNull(updatedToken);
+            assertTrue(updatedToken.isVerified());
+        }
+
+        // Other tests...
+
+}
 }
