@@ -19,7 +19,7 @@ public class TokenEntity {
     @Column(name = "exptime", nullable = false )
     private Timestamp exptime;
     @Column(name = "verified", nullable = false )
-    private boolean verified;
+    private boolean verified = false;
 
     public String getEmail() {
         return email;
