@@ -22,7 +22,7 @@ jobs:
 
       - name: Set up MySQL Root Password
         run: |
-          sudo mysql -u root -e "ALTER USER 'root'@'localhost' IDENTIFIED BY 'Vijayueki@23';"
+          sudo mysql -u root -e "ALTER USER '${{ secrets.DB_USER }}'@'localhost' IDENTIFIED BY '${{ secrets.DB_PASSWORD }}';"
 
       - uses: actions/checkout@v3
       - name: Set up JDK
@@ -43,13 +43,13 @@ jobs:
       - id: 'auth'
         uses: 'google-github-actions/auth@v2'
         with:
-          credentials_json: '${{ secrets.GOOGLE_SECRETS_KEY }}'
+          credentials_json: ${{ secrets.GOOGLE_SECRETS_KEY }}
 
       - name: Run Integration Tests
         env:
           SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/db1?createDatabaseIfNotExist=true
-          SPRING_DATASOURCE_USERNAME: root
-          SPRING_DATASOURCE_PASSWORD: Vijayueki@23
+          SPRING_DATASOURCE_USERNAME: ${{ secrets.DB_USER }}
+          SPRING_DATASOURCE_PASSWORD: ${{ secrets.DB_PASSWORD }}
         run: mvn -B verify
 
       - name: Run Packer init
@@ -73,39 +73,39 @@ jobs:
             echo "TEMPLATE_NAME=$TEMPLATE_NAME" >> $GITHUB_ENV
             IMAGE_NAME=$(cat packer-image.txt)
             DISK_NAME="template-instance"
-            PROJECT="devproject-414915"
+            PROJECT=${{ secrets.PROJECT_ID }}
             gcloud config set project $PROJECT
             output=$(gcloud compute instances list --format="table(name,zone)" | tail -n 1);instance_name=$(echo "$output" | awk '{print $1}');zone=$(echo "$output" | awk '{print $2}');
             gcloud compute instance-templates create $TEMPLATE_NAME \
-              --source-instance=projects/devproject-414915/zones/$zone/instances/$instance_name \
+              --source-instance=projects/${{ secrets.PROJECT_ID }}/zones/$zone/instances/$instance_name \
               --source-instance-zone=$zone \
-              --instance-template-region=northamerica-northeast1 \
-              --configure-disk=device-name=template-instance,instantiate-from=custom-image,custom-image=projects/devproject-414915/global/images/$IMAGE_NAME
+              --instance-template-region=${{ secrets.REGION}} \
+              --configure-disk=device-name=template-instance,instantiate-from=custom-image,custom-image=projects/${{ secrets.PROJECT_ID }}/global/images/$IMAGE_NAME
         working-directory: ./Packer
 
       - name: Update Instance Managed Group
         run: |
-          GROUP_MANG="example-group-manager"
+          GROUP_MANG=${{ secrets.INSTANCE_GROUP }}
           gcloud compute instance-groups managed set-instance-template $GROUP_MANG \
-            --template=projects/devproject-414915/regions/northamerica-northeast1/instanceTemplates/$TEMPLATE_NAME \
-            --project=devproject-414915 \
-            --region="northamerica-northeast1" 
+            --template=projects/${{ secrets.PROJECT_ID }}/regions/${{ secrets.REGION}}/instanceTemplates/$TEMPLATE_NAME \
+            --project=${{ secrets.PROJECT_ID }} \
+            --region=${{ secrets.REGION}} 
         working-directory: ./Packer
 
       - name: Start Rolling Update
         run: |
-          GROUP_MANG="example-group-manager"
+          GROUP_MANG=${{ secrets.INSTANCE_GROUP }}
           gcloud compute instance-groups managed rolling-action start-update $GROUP_MANG \
-            --version template=projects/devproject-414915/regions/northamerica-northeast1/instanceTemplates/$TEMPLATE_NAME \
-            --project=devproject-414915 \
-            --region="northamerica-northeast1"
+            --version template=projects/${{ secrets.PROJECT_ID }}/regions/${{ secrets.REGION}}/instanceTemplates/$TEMPLATE_NAME \
+            --project=${{ secrets.PROJECT_ID }} \
+            --region=${{ secrets.REGION}}
         working-directory: ./Packer
 
       - name: Wait for Rolling Update to Complete
         run: |
-          INSTANCE_GROUP="example-group-manager"
-          ZONE="northamerica-northeast1"
-          PROJECT_ID="devproject-414915"
+          INSTANCE_GROUP=${{ secrets.INSTANCE_GROUP }}
+          ZONE=${{ secrets.REGION}}
+          PROJECT_ID=${{ secrets.PROJECT_ID }}
           UPDATE_FAILED=false
 
           while true; do
