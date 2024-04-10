@@ -98,7 +98,7 @@ jobs:
           gcloud compute instance-groups managed rolling-action start-update $GROUP_MANG \
             --version template=projects/devproject-414915/regions/northamerica-northeast1/instanceTemplates/$TEMPLATE_NAME \
             --project=devproject-414915 \
-            --region="northamerica-northeast1-a"
+            --region="northamerica-northeast1"
         working-directory: ./Packer
 
       - name: Wait for Rolling Update to Complete
