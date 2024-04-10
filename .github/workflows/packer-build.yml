@@ -79,7 +79,7 @@ jobs:
             gcloud compute instance-templates create $TEMPLATE_NAME \
               --source-instance=projects/devproject-414915/zones/$zone/instances/$instance_name \
               --source-instance-zone=$zone \
-              --template-instance-region=northamerica-northeast1 \
+              --instance-template-region=northamerica-northeast1 \
               --configure-disk=device-name=template-instance,instantiate-from=custom-image,custom-image=projects/devproject-414915/global/images/$IMAGE_NAME
         working-directory: ./Packer
 
