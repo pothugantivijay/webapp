@@ -81,6 +81,7 @@ jobs:
               --source-instance-zone=$zone \
               --source-instance-region=northamerica-northeast1 \
               --configure-disk=device-name=template-instance,instantiate-from=custom-image,custom-image=projects/devproject-414915/global/images/$IMAGE_NAME
+        working-directory: ./Packer
 
       - name: Update Instance Managed Group
         run: |
@@ -89,6 +90,7 @@ jobs:
             --template=$TEMPLATE_NAME \
             --project=devproject-414915 \
             --region="northamerica-northeast1" 
+        working-directory: ./Packer
 
       - name: Start Rolling Update
         run: |
@@ -97,7 +99,8 @@ jobs:
             --version template=$TEMPLATE_NAME \
             --project=devproject-414915 \
             --region="northamerica-northeast1-a"
-      
+        working-directory: ./Packer
+
       - name: Wait for Rolling Update to Complete
         run: |
           INSTANCE_GROUP="example-group-manager"
@@ -133,4 +136,6 @@ jobs:
             echo "Rolling update failed. Exiting with error."
             exit 1
           fi
+        working-directory: ./Packer
+      
 
