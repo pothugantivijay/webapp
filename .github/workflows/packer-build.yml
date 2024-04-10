@@ -59,12 +59,12 @@ jobs:
 
       - name: Build Packer Image
         run: |
-          packer build -var 'source_file=../target/assignment-0.0.1-SNAPSHOT.jar' -var 'tmp_service_file=systemd-service.service' . | tee packer-result.txt
+          packer build -var 'source_file=../target/assignment-0.0.1-SNAPSHOT.jar' -var 'tmp_service_file=systemd-service.service' . | tee packer-output.txt
         working-directory: ./Packer
 
       - name: Getting Packer Image
         run: |
-          cat packer-result.txt | grep 'A disk image was created' | awk'{print $NF}' > packer-image.txt
+          cat packer-output.txt | grep 'A disk image was created' | awk'{print $NF}' > packer-image.txt
 
       - name: Create New Instance Template with Unique Name
         run: |
