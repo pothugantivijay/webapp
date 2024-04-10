@@ -59,5 +59,77 @@ jobs:
 
       - name: Build Packer Image
         run: |
-          packer build -var 'source_file=../target/assignment-0.0.1-SNAPSHOT.jar' -var 'tmp_service_file=systemd-service.service' .
+          packer build -var 'source_file=../target/assignment-0.0.1-SNAPSHOT.jar' -var 'tmp_service_file=systemd-service.service' . | tee packer-result.txt
         working-directory: ./Packer
+
+      - name: Getting Packer Image
+        run: |
+          cat packer-result.txt | grep 'A disk image was creatred' | awk'{print $NF}' > packer-image.txt
+
+      - name: Create New Instance Template with Unique Name
+        run: |
+            TEMPLATE_NAME="new-template-$(date +%s)"
+            echo "TEMPLATE_NAME=$TEMPLATE_NAME" >> $GITHUB_ENV
+            IMAGE_NAME=$(cat packer-image.txt)
+            DISK_NAME="template-instance"
+            PROJECT="devproject-414915"
+            gcloud config set project $PROJECT
+            output=$(gcloud compute instances list --format="table(name,zone)" | tail -n 1);instance_name=$(echo "$output" | awk '{print $1}');zone=$(echo "$output" | awk '{print $2}');
+            gcloud compute instance-templates create $TEMPLATE_NAME \
+              --source-instance=projects/devproject-414915/zones/$zone/instances/$instance_name \
+              --source-instance-zone=$zone \
+              --source-instance-region=northamerica-northeast1 \
+              --configure-disk=device-name=template-instance,instantiate-from=custom-image,custom-image=projects/devproject-414915/global/images/$IMAGE_NAME
+
+      - name: Update Instance Managed Group
+        run: |
+          GROUP_MANG="example-group-manager"
+          gcloud compute instance-groups managed set-instance-template $GROUP_MANG \
+            --template=$TEMPLATE_NAME \
+            --project=devproject-414915 \
+            --region="northamerica-northeast1" 
+
+      - name: Start Rolling Update
+        run: |
+          GROUP_MANG="example-group-manager"
+          gcloud compute instance-groups managed rolling-action start-update $GROUP_MANG \
+            --version template=$TEMPLATE_NAME \
+            --project=devproject-414915 \
+            --region="northamerica-northeast1-a"
+      
+      - name: Wait for Rolling Update to Complete
+        run: |
+          INSTANCE_GROUP="example-group-manager"
+          ZONE="northamerica-northeast1-a"
+          PROJECT_ID="devproject-414915"
+          UPDATE_FAILED=false
+
+          while true; do
+            STATUS=$(gcloud compute instance-groups managed describe $INSTANCE_GROUP \
+                      --project=$PROJECT_ID \
+                      --zone=$ZONE \
+                      --format="value(status.isStable)")
+
+            ERRORS=$(gcloud compute instance-groups managed list-errors $INSTANCE_GROUP \
+                      --project=$PROJECT_ID \
+                      --zone=$ZONE \
+                      --format="value(error.errors[].message)")
+
+            if [ "$STATUS" == "True" ]; then
+              echo "Rolling update completed successfully."
+              break
+            elif [ -n "$ERRORS" ]; then
+              echo "Errors detected during rolling update: $ERRORS"
+              UPDATE_FAILED=true
+              break
+            else
+              echo "Waiting for rolling update to complete..."
+              sleep 30
+            fi
+          done
+
+          if [ "$UPDATE_FAILED" = true ]; then
+            echo "Rolling update failed. Exiting with error."
+            exit 1
+          fi
+
