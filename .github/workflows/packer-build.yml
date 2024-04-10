@@ -64,7 +64,7 @@ jobs:
 
       - name: Getting Packer Image
         run: |
-          cat packer-output.txt | grep 'A disk image was created' | awk'{print $NF}' > packer-image.txt
+          cat packer-output.txt | grep 'A disk image was created' | awk '{print $NF}' > packer-image.txt
         working-directory: ./Packer
 
       - name: Create New Instance Template with Unique Name
