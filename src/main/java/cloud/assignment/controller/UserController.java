@@ -33,7 +33,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/v1/user")
+@RequestMapping("/v5/user")
 public class UserController{
     @Autowired
     private userservice Userservice;
